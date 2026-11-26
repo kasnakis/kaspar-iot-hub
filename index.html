@@ -177,7 +177,7 @@ footer ul{list-style:none;padding:0;margin:0;display:grid;gap:6px}
       <button type="button" data-set-lang="el" aria-pressed="true">EL</button>
       <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
     </div>
-    <a class="gh" href="https://github.com/kasnakis/kaspar-iot-hub" aria-label="GitHub"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+    <a class="gh" href="https://github.com/kasnakis/kaspar-iot-hub" aria-label="GitHub"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.690-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
   </div>
 </header>
 
@@ -199,7 +199,7 @@ footer ul{list-style:none;padding:0;margin:0;display:grid;gap:6px}
       </div>
       <ul class="chips">
         <li><span lang="el">Πολλοί οργανισμοί, απομόνωση στη βάση</span><span lang="en">Multi-tenant, isolated at the database</span></li>
-        <li>HTTP · MQTT/TLS · LoRaWAN · (S)FTP</li>
+        <li>HTTP · MQTT/TLS · LoRaWAN · (S)FTP · ThingsBoard</li>
         <li><span lang="el">Cloud ή on-premises</span><span lang="en">Cloud or on-premises</span></li>
       </ul>
     </div>
@@ -235,6 +235,7 @@ footer ul{list-style:none;padding:0;margin:0;display:grid;gap:6px}
           <li><span lang="el">MQTT με TLS, ACL ανά συσκευή</span><span lang="en">MQTT over TLS, per-device ACL</span></li>
           <li><span lang="el">LoRaWAN μέσω ChirpStack</span><span lang="en">LoRaWAN via ChirpStack</span></li>
           <li><span lang="el">Αρχεία μέσω (S)FTP, push και pull</span><span lang="en">Files via (S)FTP, push and pull</span></li>
+          <li><span lang="el">Εξωτερικοί MQTT brokers και ThingsBoard</span><span lang="en">External MQTT brokers and ThingsBoard</span></li>
         </ul>
       </div>
       <div class="stage core">
@@ -326,8 +327,8 @@ footer ul{list-style:none;padding:0;margin:0;display:grid;gap:6px}
         <tr><td>LoRaWAN</td><td><span lang="el">Αισθητήρες χαμηλής κατανάλωσης σε μεγάλες αποστάσεις, μέσω ChirpStack v4, τοπικά ή μέσω internet.</span><span lang="en">Low-power, long-range sensors via ChirpStack v4, local or over the internet.</span></td><td><span class="badge b-ok"><span lang="el">Διαθέσιμο</span><span lang="en">Available</span></span></td></tr>
         <tr><td>(S)FTP / <span lang="el">αρχεία</span><span lang="en">files</span></td><td><span lang="el">Dataloggers που ανεβάζουν ή από τα οποία κατεβάζουμε αρχεία, με ρυθμιζόμενη μορφή ανά τύπο.</span><span lang="en">Dataloggers that push files or are polled for them, with a configurable format per type.</span></td><td><span class="badge b-ok"><span lang="el">Διαθέσιμο</span><span lang="en">Available</span></span></td></tr>
         <tr><td>CSV</td><td><span lang="el">Εισαγωγή ιστορικών σειρών μετρήσεων με πρότυπα και έλεγχο ποιότητας.</span><span lang="en">Import of historical measurement series with templates and quality checks.</span></td><td><span class="badge b-ok"><span lang="el">Διαθέσιμο</span><span lang="en">Available</span></span></td></tr>
-        <tr><td><span lang="el">Εξωτερικός MQTT broker</span><span lang="en">External MQTT broker</span></td><td><span lang="el">Λήψη τηλεμετρίας από υπάρχοντα broker (π.χ. EMQX), με σύνδεση που ορίζει ο διαχειριστής του οργανισμού.</span><span lang="en">Receive telemetry from an existing broker (e.g. EMQX), configured by the tenant administrator.</span></td><td><span class="badge b-road">Roadmap</span></td></tr>
-        <tr><td>ThingsBoard</td><td><span lang="el">Αμφίδρομη ανταλλαγή ζωντανών δεδομένων με ThingsBoard CE, PE ή Cloud.</span><span lang="en">Two-way exchange of live data with ThingsBoard CE, PE or Cloud.</span></td><td><span class="badge b-road">Roadmap</span></td></tr>
+        <tr><td><span lang="el">Εξωτερικός MQTT broker</span><span lang="en">External MQTT broker</span></td><td><span lang="el">Λήψη τηλεμετρίας από υπάρχοντα broker (EMQX, HiveMQ, Mosquitto, AWS IoT). Μόνο subscribe, με έγκριση των νέων συσκευών.</span><span lang="en">Receive telemetry from an existing broker (EMQX, HiveMQ, Mosquitto, AWS IoT). Subscribe-only, with approval of new devices.</span></td><td><span class="badge b-ok"><span lang="el">Διαθέσιμο</span><span lang="en">Available</span></span></td></tr>
+        <tr><td>ThingsBoard</td><td><span lang="el">Και προς τις δύο κατευθύνσεις, με ThingsBoard CE, PE ή Cloud: λήψη μέσω rule chain και προώθηση μετρήσεων ως συσκευή gateway.</span><span lang="en">Both directions, with ThingsBoard CE, PE or Cloud: receive via a rule chain and forward measurements as a gateway device.</span></td><td><span class="badge b-ok"><span lang="el">Διαθέσιμο</span><span lang="en">Available</span></span></td></tr>
       </tbody>
     </table>
   </div>
@@ -470,9 +471,11 @@ footer ul{list-style:none;padding:0;margin:0;display:grid;gap:6px}
       <div class="card">
         <h3><span lang="el">Οδηγοί</span><span lang="en">Guides</span></h3>
         <ul class="checks" style="margin-top:6px">
+          <li><a href="guides/KasPar-IoT_Tenant_Admin_Manual_GR.pdf"><span lang="el">Βιβλίο χρήσης διαχειριστή οργανισμού (PDF)</span><span lang="en">Tenant administrator manual (PDF, Greek)</span></a></li>
+          <li><a href="guides/KasPar-IoT_Platform_Admin_Manual_GR.pdf"><span lang="el">Εγχειρίδιο διαχειριστή πλατφόρμας (PDF)</span><span lang="en">Platform administrator manual (PDF, Greek)</span></a></li>
           <li><a href="https://github.com/kasnakis/kaspar-iot-hub/blob/main/firmware/KasparIoT_Universal_ESP32/README.md"><span lang="el">ESP32: εγκατάσταση, TLS, ThingsBoard, Mosquitto, mTLS</span><span lang="en">ESP32: setup, TLS, ThingsBoard, Mosquitto, mTLS (Greek)</span></a></li>
           <li><a href="https://github.com/kasnakis/kaspar-iot-hub/blob/main/firmware/KasparIoT_Universal_MKR1310/README.md"><span lang="el">LoRaWAN με MKR 1310 και ChirpStack</span><span lang="en">LoRaWAN with MKR 1310 and ChirpStack (Greek)</span></a></li>
-          <li><a href="https://github.com/kasnakis/kaspar-iot-hub/tree/main/guides"><span lang="el">Περισσότεροι οδηγοί σύντομα</span><span lang="en">More guides coming soon</span></a></li>
+          <li><a href="https://github.com/kasnakis/kaspar-iot-hub/tree/main/guides"><span lang="el">Όλοι οι οδηγοί</span><span lang="en">All guides</span></a></li>
         </ul>
       </div>
     </div>
