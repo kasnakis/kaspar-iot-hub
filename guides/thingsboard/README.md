@@ -1,6 +1,7 @@
 # Σύνδεση ThingsBoard → KasPar-IoT
 
-Ισχύει για KasPar-IoT **1.5.0** και ThingsBoard **CE, PE ή Cloud**. Η τηλεμετρία συσκευών που ήδη στέλνουν σε ένα
+Ισχύει για KasPar-IoT **1.5.0** και νεότερες (το δημόσιο πιστοποιητικό της ενότητας 3 από την **1.6.0**) και ThingsBoard
+**CE, PE ή Cloud**. Η τηλεμετρία συσκευών που ήδη στέλνουν σε ένα
 ThingsBoard φτάνει και στην KasPar-IoT, με έναν κόμβο **REST API Call** σε ένα rule chain. Η KasPar-IoT δεν χρειάζεται
 χρήστη ή κωδικό του ThingsBoard: το ThingsBoard αποφασίζει τι στέλνει.
 
@@ -18,6 +19,8 @@ ThingsBoard φτάνει και στην KasPar-IoT, με έναν κόμβο **
    και **ζώνη ώρας** για μηνύματα με ώρα χωρίς ζώνη (προεπιλογή `Europe/Athens`).
 2. Η σελίδα δείχνει τη **διεύθυνση** της σύνδεσης (`…/integrations/thingsboard/v1/<connection id>`) και το **token**.
    Το token εμφανίζεται **μία φορά**: αντιγράψτε το τώρα. Ένα νέο token ακυρώνει αμέσως το προηγούμενο.
+   Από την 1.6.0 η σελίδα δίνει **δύο** διευθύνσεις: «από το internet» (`https://<όνομα>:<θύρα HTTPS>/…`, για
+   ThingsBoard PE / Cloud) και «στο ίδιο δίκτυο» (`http://<IP>:<θύρα web>/…`, για ThingsBoard στο ίδιο LAN).
 
 ## 2. Στο ThingsBoard: το rule chain
 
@@ -45,10 +48,31 @@ Message Type Switch --Post telemetry--> [Rule chain: KasPar-IoT forward]
 **Χωρίς εισαγωγή:** φτιάξτε τους τρεις κόμβους με το χέρι. Ο κόμβος Script είναι τύπου **Transformation**, γλώσσα
 **TBEL**, με το περιεχόμενο του [`kaspar-iot-envelope.tbel`](kaspar-iot-envelope.tbel).
 
-## 3. HTTPS με την ιδιωτική CA της KasPar-IoT
+## 3. HTTPS και Credentials
 
-Μια εγκατάσταση KasPar-IoT χρησιμοποιεί συνήθως πιστοποιητικά από τη δική της CA. Ένα ThingsBoard PE ή Cloud δεν
-εμπιστεύεται αυτή τη CA και δεν μπορείτε να την εγκαταστήσετε στον server του. Η λύση, χωρίς δημόσιο πιστοποιητικό:
+Ποια ρύθμιση **Credentials** θέλει ο κόμβος REST API Call εξαρτάται από το πιστοποιητικό της εγκατάστασης.
+
+| Εγκατάσταση KasPar-IoT | Διεύθυνση | Credentials |
+|---|---|---|
+| **Δημόσιο πιστοποιητικό** (Let's Encrypt, 1.6.0+) | «από το internet»: `https://<όνομα>:<θύρα HTTPS>/…` | **Anonymous** |
+| Μόνο η ιδιωτική CA της εγκατάστασης | `https://<όνομα ή IP>:<θύρα HTTPS>/…` | **PEM Certificate** (3.2) |
+| ThingsBoard στο ίδιο τοπικό δίκτυο | «στο ίδιο δίκτυο»: `http://<IP>:<θύρα web>/…` | **Anonymous** |
+
+### 3.1 Δημόσιο πιστοποιητικό (συνιστάται)
+
+Από την 1.6.0 ο διαχειριστής της πλατφόρμας ενεργοποιεί ένα δωρεάν πιστοποιητικό **Let's Encrypt** για το όνομα της
+εγκατάστασης (Διαχείριση πλατφόρμας → Πιστοποιητικά → «Δημόσιο πιστοποιητικό»). Ανανεώνεται αυτόματα. Το ThingsBoard το
+εμπιστεύεται ήδη, οπότε:
+
+1. Endpoint URL pattern: η διεύθυνση «από το internet» της σελίδας (με το **όνομα**, όχι την IP: το πιστοποιητικό
+   καλύπτει μόνο το όνομα).
+2. **Credentials: Anonymous.** Με PEM Certificate και την ιδιωτική CA η κλήση **αποτυγχάνει**, γιατί το πιστοποιητικό
+   δεν είναι πια της ιδιωτικής CA.
+
+### 3.2 Μόνο με την ιδιωτική CA
+
+Χωρίς δημόσιο πιστοποιητικό, ένα ThingsBoard PE ή Cloud δεν εμπιστεύεται την CA της εγκατάστασης και δεν μπορείτε να
+την εγκαταστήσετε στον server του. Η λύση:
 
 1. Στον κόμβο REST API Call → **Credentials: PEM Certificate**.
 2. **Server CA**: το `kaspar-iot-ca.crt` (Σύνδεση συσκευών → «Πιστοποιητικό της CA (δημόσιο)»· δεν περιέχει κανένα κλειδί).
@@ -62,8 +86,9 @@ Message Type Switch --Post telemetry--> [Rule chain: KasPar-IoT forward]
 4. Η διεύθυνση είναι `https://<όνομα ή IP της εγκατάστασης>:<θύρα HTTPS>`, με το όνομα ή την IP που υπάρχει στα
    πιστοποιητικά της εγκατάστασης (Διαχείριση πλατφόρμας → Πιστοποιητικά).
 
-Για ThingsBoard στο ίδιο τοπικό δίκτυο αρκεί `http://`, με `Credentials: Anonymous`. Χωρίς TLS το token ταξιδεύει
-χωρίς κρυπτογράφηση: μόνο για τοπικό δίκτυο.
+### 3.3 Στο ίδιο τοπικό δίκτυο
+
+Αρκεί `http://`, με `Credentials: Anonymous`. Χωρίς TLS το token ταξιδεύει χωρίς κρυπτογράφηση: μόνο για τοπικό δίκτυο.
 
 ## 4. Νέες συσκευές και έγκριση
 
@@ -112,10 +137,11 @@ Message Type Switch --Post telemetry--> [Rule chain: KasPar-IoT forward]
 | 422 | το μήνυμα δεν διαβάζεται (η αιτία στη σελίδα) | π.χ. «no device name»: λείπει το φίλτρο Device ή το Script |
 | 429 | πάνω από το όριο ρυθμού | το ThingsBoard ξαναστέλνει μετά το `Retry-After` |
 | Timeout | πολύ μικρό Read timeout | `10000` ms |
-| SSL / PKIX | HTTPS χωρίς τη CA | Credentials: PEM Certificate (ενότητα 3) |
+| SSL / PKIX | Λάθος Credentials για το πιστοποιητικό | Δημόσιο πιστοποιητικό: Anonymous (3.1)· ιδιωτική CA: PEM Certificate (3.2) |
 
 Συνηθισμένα λάθη στη ρύθμιση: κόμβος **Filter** αντί για **Transformation** στο Script· `https://` σε θύρα χωρίς TLS·
-Read timeout `1000` αντί για `10000`.
+Read timeout `1000` αντί για `10000`· η IP αντί για το όνομα με δημόσιο πιστοποιητικό· PEM Certificate αντί για
+Anonymous μετά την ενεργοποίηση του δημόσιου πιστοποιητικού.
 
 ## Ασφάλεια
 
