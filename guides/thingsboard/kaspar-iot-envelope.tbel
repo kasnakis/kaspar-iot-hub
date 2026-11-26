@@ -1,0 +1,8 @@
+// KasPar-IoT: the device and the time of the telemetry go with the values
+var out = {
+    device: metadata.deviceName,
+    type: metadata.deviceType,
+    ts: metadata.ts,
+    values: msg
+};
+return {msg: out, metadata: metadata, msgType: msgType};

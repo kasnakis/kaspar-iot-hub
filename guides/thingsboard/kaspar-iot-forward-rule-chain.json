@@ -1,0 +1,100 @@
+{
+  "ruleChain": {
+    "name": "KasPar-IoT forward",
+    "type": "CORE",
+    "firstRuleNodeId": null,
+    "root": false,
+    "debugMode": false,
+    "configuration": null,
+    "additionalInfo": {
+      "description": "Sends device telemetry to KasPar-IoT. Replace <KASPAR-HOST>, <PORT>, <CONNECTION-ID> and <TOKEN>."
+    }
+  },
+  "metadata": {
+    "firstNodeIndex": 0,
+    "nodes": [
+      {
+        "additionalInfo": {
+          "description": "Only devices: Edge and other originators have no device name",
+          "layoutX": 300,
+          "layoutY": 150
+        },
+        "type": "org.thingsboard.rule.engine.filter.TbOriginatorTypeFilterNode",
+        "name": "Only devices",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "originatorTypes": [
+            "DEVICE"
+          ]
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 580,
+          "layoutY": 150
+        },
+        "type": "org.thingsboard.rule.engine.transform.TbTransformMsgNode",
+        "name": "KasPar-IoT envelope",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "scriptLang": "TBEL",
+          "tbelScript": "// KasPar-IoT: the device and the time of the telemetry go with the values\nvar out = {\n    device: metadata.deviceName,\n    type: metadata.deviceType,\n    ts: metadata.ts,\n    values: msg\n};\nreturn {msg: out, metadata: metadata, msgType: msgType};",
+          "jsScript": "return {msg: msg, metadata: metadata, msgType: msgType};"
+        }
+      },
+      {
+        "additionalInfo": {
+          "description": "",
+          "layoutX": 860,
+          "layoutY": 150
+        },
+        "type": "org.thingsboard.rule.engine.rest.TbRestApiCallNode",
+        "name": "KasPar-IoT",
+        "debugMode": false,
+        "singletonMode": false,
+        "configurationVersion": 0,
+        "configuration": {
+          "restEndpointUrlPattern": "https://<KASPAR-HOST>:<PORT>/integrations/thingsboard/v1/<CONNECTION-ID>",
+          "requestMethod": "POST",
+          "useSimpleClientHttpFactory": false,
+          "parseToPlainText": false,
+          "ignoreRequestBody": false,
+          "enableProxy": false,
+          "useSystemProxyProperties": false,
+          "proxyScheme": null,
+          "proxyHost": null,
+          "proxyPort": 0,
+          "proxyUser": null,
+          "proxyPassword": null,
+          "readTimeoutMs": 10000,
+          "maxParallelRequestsCount": 0,
+          "headers": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer <TOKEN>"
+          },
+          "credentials": {
+            "type": "anonymous"
+          }
+        }
+      }
+    ],
+    "connections": [
+      {
+        "fromIndex": 0,
+        "toIndex": 1,
+        "type": "True"
+      },
+      {
+        "fromIndex": 1,
+        "toIndex": 2,
+        "type": "Success"
+      }
+    ],
+    "ruleChainConnections": null
+  }
+}
