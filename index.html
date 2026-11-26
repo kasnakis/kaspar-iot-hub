@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="el" data-lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KasPar-IoT — Από τον αισθητήρα στην απόφαση · From sensor to decision</title>
+<meta name="description" content="KasPar-IoT: πλατφόρμα IoT πολλών οργανισμών για περιβαλλοντική, υδρολογική, μετεωρολογική, γεωτεχνική και βιομηχανική τηλεμετρία. Multi-tenant IoT telemetry platform.">
+<meta property="og:title" content="KasPar-IoT — From sensor to decision">
+<meta property="og:description" content="Multi-tenant IoT telemetry platform: live & legacy data, MQTT/TLS, LoRaWAN, file ingestion, data quality, maps and time-series analysis. Cloud or on-premises.">
+<meta property="og:image" content="assets/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<style>
+:root{
+  --navy:#16294D; --navy-2:#0F1D38; --blue:#1A6FE6; --blue-2:#4A90F0; --sky:#E8F1FD;
+  --ink:#16294D; --text:#33415C; --muted:#5E6B85; --line:#DCE4F0; --bg:#FFFFFF; --bg-2:#F5F8FD;
+  --ok:#17845A; --ok-bg:#E3F4EC; --road:#9A6A00; --road-bg:#FBF1DA;
+  --r:14px; --shadow:0 1px 2px rgba(22,41,77,.06),0 8px 24px rgba(22,41,77,.07);
+  --font:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+  --mono:ui-monospace,"Cascadia Code","SFMono-Regular",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--font);color:var(--text);background:var(--bg);line-height:1.6;font-size:17px;-webkit-font-smoothing:antialiased}
+html[data-lang="el"] [lang="en"]:not(html), html[data-lang="en"] [lang="el"]:not(html){display:none!important}
+a{color:var(--blue);text-decoration:none} a:hover{text-decoration:underline}
+h1,h2,h3{color:var(--ink);line-height:1.2;margin:0 0 .5em;letter-spacing:-.01em}
+h2{font-size:clamp(1.7rem,3vw,2.3rem)}
+h3{font-size:1.12rem}
+p{margin:0 0 1em}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+section{padding:88px 0}
+.alt{background:var(--bg-2)}
+.eyebrow{display:inline-block;font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:12px}
+.lead{font-size:1.15rem;color:var(--muted);max-width:760px}
+.center{text-align:center} .center .lead{margin-left:auto;margin-right:auto}
+
+/* header */
+header{position:sticky;top:0;z-index:50;background:rgba(22,41,77,.96);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.08)}
+.nav{display:flex;align-items:center;gap:28px;height:68px}
+.brand img{height:42px;display:block}
+.nav ul{display:flex;gap:22px;list-style:none;margin:0 0 0 auto;padding:0}
+.nav ul a{color:#C9D6EE;font-size:.95rem;font-weight:500}
+.nav ul a:hover{color:#fff;text-decoration:none}
+.lang{display:flex;border:1px solid rgba(255,255,255,.25);border-radius:999px;overflow:hidden}
+.lang button{background:transparent;border:0;color:#C9D6EE;font:600 .8rem var(--font);padding:6px 12px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--blue);color:#fff}
+.gh{color:#fff;display:flex}
+.gh svg{width:22px;height:22px;fill:currentColor}
+@media (max-width:900px){.nav ul{display:none}.lang{margin-left:auto}}
+
+/* hero */
+.hero{background:radial-gradient(1100px 500px at 80% -10%,rgba(26,111,230,.45),transparent 60%),linear-gradient(180deg,var(--navy),var(--navy-2));color:#DCE6F7;padding:96px 0 110px;position:relative;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+.hero h1{color:#fff;font-size:clamp(2.3rem,5vw,3.6rem);font-weight:800}
+.hero h1 .hl{color:var(--blue-2)}
+.hero p.lead{color:#B9C8E3}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin:30px 0 34px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:10px;font-weight:600;font-size:1rem}
+.btn:hover{text-decoration:none}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#2F7FEE}
+.btn-ghost{border:1px solid rgba(255,255,255,.35);color:#fff}
+.btn-ghost:hover{background:rgba(255,255,255,.08)}
+.chips{display:flex;flex-wrap:wrap;gap:10px;list-style:none;padding:0;margin:0}
+.chips li{font-size:.86rem;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#DCE6F7}
+.gear{width:100%;max-width:400px;justify-self:center;filter:drop-shadow(0 20px 50px rgba(0,0,0,.35));animation:spin 90s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.gear{animation:none}}
+@media (max-width:900px){.hero .wrap{grid-template-columns:1fr}.gear{max-width:220px;grid-row:1}}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:48px;position:relative}
+.stage{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);position:relative}
+.stage .n{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--sky);color:var(--blue);font-weight:800;font-size:.9rem;margin-bottom:10px}
+.stage ul{list-style:none;margin:0;padding:0;font-size:.93rem}
+.stage li{padding:6px 0;border-top:1px dashed var(--line)}
+.stage li:first-child{border-top:0}
+.stage:not(:last-child)::after{content:"";position:absolute;right:-15px;top:50%;width:12px;height:12px;border-top:3px solid var(--blue);border-right:3px solid var(--blue);transform:translateY(-50%) rotate(45deg);z-index:2}
+.stage.core{background:var(--navy);border-color:var(--navy);color:#C9D6EE}
+.stage.core h3{color:#fff}.stage.core .n{background:var(--blue);color:#fff}.stage.core li{border-color:rgba(255,255,255,.15)}
+@media (max-width:900px){.pipe{grid-template-columns:1fr}.stage:not(:last-child)::after{right:50%;top:auto;bottom:-15px;transform:translateX(50%) rotate(135deg)}}
+
+/* hierarchy */
+.tree{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin:40px 0 8px}
+.tree .node{background:#fff;border:1.5px solid var(--blue);color:var(--ink);font-weight:700;padding:10px 18px;border-radius:10px;text-align:center;min-width:120px}
+.tree .node small{display:block;font-weight:500;color:var(--muted);font-size:.78rem}
+.tree .arr{color:var(--blue);font-weight:800;font-size:1.3rem}
+
+/* cards */
+.grid{display:grid;gap:20px}
+.g4{grid-template-columns:repeat(4,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g2{grid-template-columns:repeat(2,1fr)}
+@media (max-width:1000px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr 1fr}}
+@media (max-width:640px){.g4,.g3,.g2{grid-template-columns:1fr}}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:24px;box-shadow:var(--shadow)}
+.card p{font-size:.95rem;margin:0;color:var(--muted)}
+.ico{width:44px;height:44px;border-radius:12px;background:var(--sky);display:grid;place-items:center;margin-bottom:14px}
+.ico svg{width:24px;height:24px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mt{margin-top:48px}
+
+/* table */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;margin-top:40px;background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);font-size:.95rem}
+.tbl th,.tbl td{padding:14px 18px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{background:var(--bg-2);color:var(--ink);font-size:.82rem;text-transform:uppercase;letter-spacing:.06em}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:first-child{font-weight:700;color:var(--ink);white-space:nowrap}
+.badge{display:inline-block;font-size:.76rem;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.b-ok{background:var(--ok-bg);color:var(--ok)} .b-road{background:var(--road-bg);color:var(--road)} .b-exp{background:var(--sky);color:var(--blue)}
+@media (max-width:700px){.tbl,.tbl tbody,.tbl tr,.tbl td{display:block;width:100%}.tbl thead{display:none}.tbl tr{border-bottom:1px solid var(--line)}.tbl td{border:0;padding:8px 18px}.tbl td:first-child{padding-top:16px}}
+
+/* use cases */
+.uc{border-top:4px solid var(--blue)}
+.uc ul{margin:12px 0 0;padding-left:18px;font-size:.93rem;color:var(--muted)}
+
+/* deploy split */
+.split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+@media (max-width:900px){.split{grid-template-columns:1fr}}
+.checks{list-style:none;padding:0;margin:20px 0 0}
+.checks li{padding:8px 0 8px 32px;position:relative}
+.checks li::before{content:"";position:absolute;left:0;top:12px;width:18px;height:18px;border-radius:50%;background:var(--blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/12px no-repeat}
+.terminal{white-space:pre;background:var(--navy-2);color:#C9D6EE;border-radius:var(--r);padding:22px 24px;font:14px/1.7 var(--mono);box-shadow:var(--shadow);overflow-x:auto}
+.terminal .c{color:#6F86B0} .terminal .k{color:#7FB3FF} .terminal .g{color:#6FD3A4}
+
+/* firmware cards */
+.fw{display:flex;flex-direction:column}
+.fw .meta{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}
+.fw .meta > span:not(.badge){font-size:.78rem;background:var(--bg-2);border:1px solid var(--line);padding:3px 9px;border-radius:6px;color:var(--text)}
+.fw .links{margin-top:auto;padding-top:16px;display:flex;gap:16px;font-weight:600;font-size:.93rem}
+
+/* payload tester */
+.tester{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-top:28px}
+.tester-head{display:flex;gap:0;border-bottom:1px solid var(--line);background:var(--bg-2)}
+.tab{background:none;border:0;padding:14px 20px;font:600 .95rem var(--font);color:var(--muted);cursor:pointer;border-bottom:3px solid transparent}
+.tab[aria-selected="true"]{color:var(--blue);border-bottom-color:var(--blue);background:#fff}
+.pane{padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.pane[hidden]{display:none}
+@media (max-width:800px){.pane{grid-template-columns:1fr}}
+.row{display:grid;grid-template-columns:70px 1fr 110px 34px;gap:8px;margin-bottom:8px;align-items:center}
+.row label{font-size:.8rem;color:var(--muted)}
+input,select,textarea{font:inherit;font-size:.93rem;border:1px solid var(--line);border-radius:8px;padding:8px 10px;width:100%;color:var(--ink);background:#fff}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--blue);outline-offset:-1px;border-color:var(--blue)}
+textarea{font-family:var(--mono);min-height:90px;resize:vertical}
+.small-btn{background:var(--sky);color:var(--blue);border:0;border-radius:8px;padding:8px 12px;font:600 .88rem var(--font);cursor:pointer}
+.x{background:none;border:0;color:var(--muted);font-size:1.2rem;cursor:pointer}
+.out{background:var(--navy-2);color:#C9D6EE;border-radius:10px;padding:16px;font:14px/1.6 var(--mono);white-space:pre-wrap;word-break:break-all;min-height:90px}
+.out .err{color:#FF9C9C}
+.hint{font-size:.85rem;color:var(--muted);margin-top:10px}
+.out-label{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 8px}
+
+/* resources */
+.res{display:flex;gap:18px;align-items:flex-start}
+.res img{width:110px;border-radius:8px;border:1px solid var(--line);flex:none}
+
+/* footer */
+footer{background:var(--navy-2);color:#93A5C8;padding:56px 0 40px;font-size:.92rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:32px;justify-content:space-between;align-items:flex-start}
+footer img{height:46px}
+footer a{color:#C9D6EE}
+footer ul{list-style:none;padding:0;margin:0;display:grid;gap:6px}
+.fine{width:100%;border-top:1px solid rgba(255,255,255,.08);padding-top:22px;margin-top:8px;font-size:.84rem}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="#top" aria-label="KasPar-IoT"><img src="assets/logo-dark.svg" alt="KasPar-IoT"></a>
+    <ul>
+      <li><a href="#platform"><span lang="el">Πλατφόρμα</span><span lang="en">Platform</span></a></li>
+      <li><a href="#connectivity"><span lang="el">Συνδεσιμότητα</span><span lang="en">Connectivity</span></a></li>
+      <li><a href="#usecases"><span lang="el">Εφαρμογές</span><span lang="en">Use cases</span></a></li>
+      <li><a href="#developers">Developers</a></li>
+      <li><a href="#resources"><span lang="el">Υλικό</span><span lang="en">Resources</span></a></li>
+    </ul>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-set-lang="el" aria-pressed="true">EL</button>
+      <button type="button" data-set-lang="en" aria-pressed="false">EN</button>
+    </div>
+    <a class="gh" href="https://github.com/kasnakis/kaspar-iot-hub" aria-label="GitHub"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1>
+        <span lang="el">Από τον αισθητήρα<br>στην <span class="hl">απόφαση</span>.</span>
+        <span lang="en">From sensor<br>to <span class="hl">decision</span>.</span>
+      </h1>
+      <p class="lead" lang="el">Το KasPar-IoT είναι πλατφόρμα IoT για πολλούς οργανισμούς. Συγκεντρώνει σε ένα σημείο ζωντανά και ιστορικά δεδομένα από περιβαλλοντικούς, υδρολογικούς, μετεωρολογικούς, γεωτεχνικούς και βιομηχανικούς σταθμούς. Τα ελέγχει, τα οργανώνει και τα κάνει χρήσιμα.</p>
+      <p class="lead" lang="en">KasPar-IoT is a multi-tenant IoT platform. It brings live and historical data from environmental, hydrological, meteorological, geotechnical and industrial stations into one place, then validates and organises it so people can act on it.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="#platform"><span lang="el">Δείτε τις δυνατότητες</span><span lang="en">Explore the platform</span> →</a>
+        <a class="btn btn-ghost" href="#developers"><span lang="el">Εργαλεία για developers</span><span lang="en">Developer tools</span></a>
+      </div>
+      <ul class="chips">
+        <li><span lang="el">Πολλοί οργανισμοί, απομόνωση στη βάση</span><span lang="en">Multi-tenant, isolated at the database</span></li>
+        <li>HTTP · MQTT/TLS · LoRaWAN · (S)FTP</li>
+        <li><span lang="el">Cloud ή on-premises</span><span lang="en">Cloud or on-premises</span></li>
+      </ul>
+    </div>
+    <img class="gear" src="assets/icon.svg" alt="" aria-hidden="true">
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="platform">
+  <div class="wrap">
+    <div class="center">
+      <span class="eyebrow"><span lang="el">Πώς λειτουργεί</span><span lang="en">How it works</span></span>
+      <h2><span lang="el">Μία ροή, από το πεδίο έως τον πίνακα ελέγχου</span><span lang="en">One flow, from the field to the dashboard</span></h2>
+      <p class="lead" lang="el">Κάθε μέτρηση, όπως κι αν φτάσει, περνά από την ίδια διαδρομή: ταυτοποίηση, ουρά, έλεγχο, αποθήκευση και αξιοποίηση.</p>
+      <p class="lead" lang="en">Every measurement, however it arrives, follows the same path: identification, queueing, validation, storage and use.</p>
+    </div>
+    <div class="pipe">
+      <div class="stage">
+        <span class="n">1</span>
+        <h3><span lang="el">Πηγές</span><span lang="en">Sources</span></h3>
+        <ul>
+          <li><span lang="el">Συσκευές Wi-Fi / Ethernet (π.χ. ESP32)</span><span lang="en">Wi-Fi / Ethernet devices (e.g. ESP32)</span></li>
+          <li><span lang="el">Κόμβοι LoRaWAN</span><span lang="en">LoRaWAN nodes</span></li>
+          <li>Dataloggers</li>
+          <li><span lang="el">Ιστορικά αρχεία CSV</span><span lang="en">Historical CSV files</span></li>
+        </ul>
+      </div>
+      <div class="stage">
+        <span class="n">2</span>
+        <h3><span lang="el">Λήψη</span><span lang="en">Ingestion</span></h3>
+        <ul>
+          <li>HTTP device API</li>
+          <li><span lang="el">MQTT με TLS, ACL ανά συσκευή</span><span lang="en">MQTT over TLS, per-device ACL</span></li>
+          <li><span lang="el">LoRaWAN μέσω ChirpStack</span><span lang="en">LoRaWAN via ChirpStack</span></li>
+          <li><span lang="el">Αρχεία μέσω (S)FTP, push και pull</span><span lang="en">Files via (S)FTP, push and pull</span></li>
+        </ul>
+      </div>
+      <div class="stage core">
+        <span class="n">3</span>
+        <h3><span lang="el">Πυρήνας</span><span lang="en">Core</span></h3>
+        <ul>
+          <li><span lang="el">Ουρά μηνυμάτων με επαναλήψεις</span><span lang="en">Message queue with retries</span></li>
+          <li><span lang="el">Κανόνες ποιότητας ανά οργανισμό</span><span lang="en">Per-tenant quality rules</span></li>
+          <li><span lang="el">Χρονοσειρές σε PostgreSQL</span><span lang="en">Time series in PostgreSQL</span></li>
+          <li><span lang="el">Καταγραφή κάθε ενέργειας</span><span lang="en">Audit trail for every action</span></li>
+        </ul>
+      </div>
+      <div class="stage">
+        <span class="n">4</span>
+        <h3><span lang="el">Αξιοποίηση</span><span lang="en">Insight</span></h3>
+        <ul>
+          <li><span lang="el">Χάρτης σταθμών</span><span lang="en">Station map</span></li>
+          <li><span lang="el">Ανάλυση χρονοσειρών</span><span lang="en">Time-series analysis</span></li>
+          <li><span lang="el">Ειδοποιήσεις με email</span><span lang="en">Email alarms</span></li>
+          <li><span lang="el">Εξαγωγές και αναφορές</span><span lang="en">Exports and reports</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tree" aria-label="Hierarchy">
+      <div class="node"><span lang="el">Οργανισμός</span><span lang="en">Tenant</span><small><span lang="el">απομονωμένα δεδομένα</span><span lang="en">isolated data</span></small></div><span class="arr">→</span>
+      <div class="node"><span lang="el">Πελάτης</span><span lang="en">Customer</span><small><span lang="el">ομάδες σταθμών</span><span lang="en">station groups</span></small></div><span class="arr">→</span>
+      <div class="node"><span lang="el">Σταθμός</span><span lang="en">Station</span><small><span lang="el">θέση στο πεδίο</span><span lang="en">field location</span></small></div><span class="arr">→</span>
+      <div class="node"><span lang="el">Συσκευή</span><span lang="en">Device</span><small><span lang="el">token & κανάλια</span><span lang="en">token & channels</span></small></div><span class="arr">→</span>
+      <div class="node"><span lang="el">Αισθητήρας</span><span lang="en">Sensor</span><small><span lang="el">χρονοσειρά</span><span lang="en">time series</span></small></div>
+    </div>
+  </div>
+</section>
+
+<!-- CAPABILITIES -->
+<section class="alt">
+  <div class="wrap">
+    <span class="eyebrow"><span lang="el">Δυνατότητες</span><span lang="en">Capabilities</span></span>
+    <h2><span lang="el">Όλα όσα χρειάζεται ένα δίκτυο σταθμών</span><span lang="en">Everything a station network needs</span></h2>
+    <div class="grid g4 mt">
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+        <h3><span lang="el">Πολλοί οργανισμοί</span><span lang="en">Multi-tenancy</span></h3>
+        <p lang="el">Κάθε οργανισμός βλέπει μόνο τα δικά του δεδομένα. Η απομόνωση επιβάλλεται στη βάση με Row-Level Security, όχι μόνο στην εφαρμογή.</p>
+        <p lang="en">Each organisation sees only its own data. Isolation is enforced in the database with Row-Level Security, not just in the application.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+        <h3><span lang="el">Ασφάλεια</span><span lang="en">Security</span></h3>
+        <p lang="el">Ρόλοι ανά επίπεδο, 2FA υποχρεωτικό για διαχειριστές, προστασία από brute-force, TLS με δική σας CA και πλήρες audit trail.</p>
+        <p lang="en">Scoped roles, mandatory 2FA for administrators, brute-force protection, TLS with your own CA and a full audit trail.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0114 0"/><path d="M8.5 16a5 5 0 017 0"/><circle cx="12" cy="19.5" r="1"/><path d="M2 9a14.5 14.5 0 0120 0"/></svg></div>
+        <h3><span lang="el">Ζωντανά δεδομένα</span><span lang="en">Live data</span></h3>
+        <p lang="el">Tokens συσκευών που εμφανίζονται μία φορά, ACL ανά συσκευή στον broker και άμεση ανάκληση. Κανάλια που αντιστοιχίζουν κλειδιά σε χρονοσειρές με μετατροπή μονάδων.</p>
+        <p lang="en">Device tokens shown only once, per-device broker ACLs and instant revocation. Channels map payload keys to time series, with unit conversion.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg></div>
+        <h3><span lang="el">Ιστορικά δεδομένα</span><span lang="en">Legacy data</span></h3>
+        <p lang="el">Εισαγωγή CSV με πρότυπα ανά οργανισμό, έλεγχο υγείας, κανονικοποίηση πεδίων και δυνατότητα αναίρεσης μιας εισαγωγής.</p>
+        <p lang="en">CSV import with per-tenant templates, health checks, field normalisation, and the option to roll back an import.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-8"/><path d="M14 8h6v6"/></svg></div>
+        <h3><span lang="el">Ποιότητα δεδομένων</span><span lang="en">Data quality</span></h3>
+        <p lang="el">Έλεγχοι πληρότητας, ορίων και ασυνέχειας. Οι διορθώσεις καταγράφονται με οριστική απόφαση, ώστε να ξέρετε ποιος άλλαξε τι.</p>
+        <p lang="en">Completeness, range and discontinuity checks. Corrections are recorded with a final decision, so you always know who changed what.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg></div>
+        <h3><span lang="el">Χάρτης σταθμών</span><span lang="en">Station map</span></h3>
+        <p lang="el">Σταθμοί με χρώμα ανά κατάσταση. Με ένα κλικ βλέπετε τις τελευταίες τιμές και περνάτε στην ανάλυση.</p>
+        <p lang="en">Stations colour-coded by state. One click shows the latest values and leads straight to analysis.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l3-4 3 2 5-7"/></svg></div>
+        <h3><span lang="el">Ανάλυση χρονοσειρών</span><span lang="en">Time-series analysis</span></h3>
+        <p lang="el">Όλες οι χρονοσειρές ενός σταθμού σε μία οθόνη, με χρονικό παράθυρο της επιλογής σας και συγκεντρωτικές λήψεις.</p>
+        <p lang="en">All of a station's time series on one screen, with a time window of your choice and aggregated downloads.</p></div>
+      <div class="card"><div class="ico"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 00-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></div>
+        <h3><span lang="el">Ειδοποιήσεις</span><span lang="en">Alarms</span></h3>
+        <p lang="el">Συναγερμοί από τους ίδιους κανόνες ποιότητας, με email μόνο σε μέλη του οργανισμού.</p>
+        <p lang="en">Alarms built from the same quality rules, emailed only to members of the organisation.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONNECTIVITY -->
+<section id="connectivity">
+  <div class="wrap">
+    <span class="eyebrow"><span lang="el">Συνδεσιμότητα</span><span lang="en">Connectivity</span></span>
+    <h2><span lang="el">Συνδέστε ό,τι έχετε ήδη στο πεδίο</span><span lang="en">Connect what you already have in the field</span></h2>
+    <p class="lead" lang="el">Η πλατφόρμα δεν σας δεσμεύει σε συγκεκριμένο υλικό. Δέχεται δεδομένα από ανοιχτά πρωτόκολλα και τυποποιημένα αρχεία.</p>
+    <p class="lead" lang="en">The platform does not lock you into specific hardware. It accepts data over open protocols and standard file formats.</p>
+    <table class="tbl">
+      <thead><tr><th><span lang="el">Κανάλι</span><span lang="en">Channel</span></th><th><span lang="el">Για τι</span><span lang="en">Used for</span></th><th><span lang="el">Κατάσταση</span><span lang="en">Status</span></th></tr></thead>
+      <tbody>
+        <tr><td>HTTP device API</td><td><span lang="el">Απλές συσκευές και scripts, με Bearer token και idempotency.</span><span lang="en">Simple devices and scripts, with Bearer token and idempotency.</span></td><td><span class="badge b-ok"><span lang="el">Διαθέσιμο</span><span lang="en">Available</span></span></td></tr>
+        <tr><td>MQTT / TLS</td><td><span lang="el">Συνεχής τηλεμετρία. Ενσωματωμένος broker με έναν client και ένα ACL ανά συσκευή.</span><span lang="en">Continuous telemetry. Built-in broker with one client and one ACL per device.</span></td><td><span class="badge b-ok"><span lang="el">Διαθέσιμο</span><span lang="en">Available</span></span></td></tr>
+        <tr><td>LoRaWAN</td><td><span lang="el">Αισθητήρες χαμηλής κατανάλωσης σε μεγάλες αποστάσεις, μέσω ChirpStack v4, τοπικά ή μέσω internet.</span><span lang="en">Low-power, long-range sensors via ChirpStack v4, local or over the internet.</span></td><td><span class="badge b-ok"><span lang="el">Διαθέσιμο</span><span lang="en">Available</span></span></td></tr>
+        <tr><td>(S)FTP / <span lang="el">αρχεία</span><span lang="en">files</span></td><td><span lang="el">Dataloggers που ανεβάζουν ή από τα οποία κατεβάζουμε αρχεία, με ρυθμιζόμενη μορφή ανά τύπο.</span><span lang="en">Dataloggers that push files or are polled for them, with a configurable format per type.</span></td><td><span class="badge b-ok"><span lang="el">Διαθέσιμο</span><span lang="en">Available</span></span></td></tr>
+        <tr><td>CSV</td><td><span lang="el">Εισαγωγή ιστορικών σειρών μετρήσεων με πρότυπα και έλεγχο ποιότητας.</span><span lang="en">Import of historical measurement series with templates and quality checks.</span></td><td><span class="badge b-ok"><span lang="el">Διαθέσιμο</span><span lang="en">Available</span></span></td></tr>
+        <tr><td><span lang="el">Εξωτερικός MQTT broker</span><span lang="en">External MQTT broker</span></td><td><span lang="el">Λήψη τηλεμετρίας από υπάρχοντα broker (π.χ. EMQX), με σύνδεση που ορίζει ο διαχειριστής του οργανισμού.</span><span lang="en">Receive telemetry from an existing broker (e.g. EMQX), configured by the tenant administrator.</span></td><td><span class="badge b-road">Roadmap</span></td></tr>
+        <tr><td>ThingsBoard</td><td><span lang="el">Αμφίδρομη ανταλλαγή ζωντανών δεδομένων με ThingsBoard CE, PE ή Cloud.</span><span lang="en">Two-way exchange of live data with ThingsBoard CE, PE or Cloud.</span></td><td><span class="badge b-road">Roadmap</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section id="usecases" class="alt">
+  <div class="wrap">
+    <span class="eyebrow"><span lang="el">Εφαρμογές</span><span lang="en">Use cases</span></span>
+    <h2><span lang="el">Σχεδιασμένο για υποδομές και περιβάλλον</span><span lang="en">Built for infrastructure and the environment</span></h2>
+    <div class="grid g4 mt">
+      <div class="card uc"><h3><span lang="el">Γεωτεχνικά</span><span lang="en">Geotechnical</span></h3>
+        <ul lang="el"><li>Πιεζόμετρα</li><li>Κλισιόμετρα</li><li>Παρακολούθηση εδάφους και πρανών</li></ul>
+        <ul lang="en"><li>Piezometers</li><li>Inclinometers</li><li>Ground and slope monitoring</li></ul></div>
+      <div class="card uc"><h3><span lang="el">Νερό</span><span lang="en">Water</span></h3>
+        <ul lang="el"><li>Ταμιευτήρες και στάθμες</li><li>Ποιότητα υδάτων</li><li>Βροχοπτώσεις και παροχές</li></ul>
+        <ul lang="en"><li>Reservoirs and water levels</li><li>Water quality</li><li>Rainfall and flows</li></ul></div>
+      <div class="card uc"><h3><span lang="el">Αγρομετεωρολογία</span><span lang="en">Agro-meteorology</span></h3>
+        <ul lang="el"><li>Μετεωρολογικοί σταθμοί</li><li>Υγρασία εδάφους</li><li>Παρακολούθηση καλλιεργειών</li></ul>
+        <ul lang="en"><li>Weather stations</li><li>Soil moisture</li><li>Crop monitoring</li></ul></div>
+      <div class="card uc"><h3><span lang="el">Βιομηχανία</span><span lang="en">Industry</span></h3>
+        <ul lang="el"><li>Περιβαλλοντικοί αισθητήρες</li><li>Εξοπλισμός πεδίου</li><li>Ειδοποιήσεις εκτός ορίων</li></ul>
+        <ul lang="en"><li>Environmental sensors</li><li>Field equipment</li><li>Out-of-range alarms</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEPLOYMENT -->
+<section>
+  <div class="wrap split">
+    <div>
+      <span class="eyebrow"><span lang="el">Εγκατάσταση</span><span lang="en">Deployment</span></span>
+      <h2><span lang="el">Στο cloud ή στον δικό σας χώρο</span><span lang="en">In the cloud or on your own premises</span></h2>
+      <p lang="el">Τα δεδομένα σας μένουν εκεί που αποφασίζετε. Η πλατφόρμα εγκαθίσταται με Docker σε server του οργανισμού ή σε υποδομή cloud.</p>
+      <p lang="en">Your data stays where you decide. The platform installs with Docker on your own server or on cloud infrastructure.</p>
+      <ul class="checks">
+        <li lang="el">Ολόκληρη η πλατφόρμα σε containers: βάση, API, ingestion, broker, frontend</li>
+        <li lang="en">The whole platform in containers: database, API, ingestion, broker, frontend</li>
+        <li lang="el">HTTPS και MQTT/TLS με πιστοποιητικά που διαχειρίζεστε από το UI</li>
+        <li lang="en">HTTPS and MQTT/TLS with certificates managed from the UI</li>
+        <li lang="el">Έλεγχος έκθεσης στο internet και οδηγίες firewall μέσα στην εφαρμογή</li>
+        <li lang="en">Internet exposure check and firewall guidance inside the app</li>
+        <li lang="el">Δίγλωσσο περιβάλλον, ώρα αποθήκευσης σε UTC και ζώνη ώρας ανά πηγή</li>
+        <li lang="en">Bilingual interface, UTC storage and a timezone per data source</li>
+      </ul>
+    </div>
+    <div class="terminal" aria-label="MQTT example"><span class="c"># <span lang="el">Αποστολή μέτρησης μέσω MQTT/TLS</span><span lang="en">Send a measurement over MQTT/TLS</span></span>
+<span class="k">mosquitto_pub</span> -h &lt;your-host&gt; -p &lt;tls-port&gt; \
+  --cafile kaspar-ca.pem \
+  -u &lt;device_key&gt; -P &lt;device_token&gt; \
+  -t kaspar/v1/devices/&lt;device_key&gt;/telemetry \
+  -m '{"temperature":23.5,"humidity":64.2}'
+
+<span class="g">✓ <span lang="el">Η τιμή εμφανίζεται στη χρονοσειρά του σταθμού</span><span lang="en">The value appears in the station's time series</span></span></div>
+  </div>
+</section>
+
+<!-- DEVELOPERS -->
+<section id="developers" class="alt">
+  <div class="wrap">
+    <span class="eyebrow">Developers</span>
+    <h2><span lang="el">Ανοιχτά εργαλεία για να συνδεθείτε γρήγορα</span><span lang="en">Open tools to get connected fast</span></h2>
+    <p class="lead" lang="el">Firmware δοκιμών, decoders και οδηγοί, ελεύθερα διαθέσιμα σε αυτό το repository. Λειτουργούν με το KasPar-IoT αλλά και με ThingsBoard ή οποιονδήποτε MQTT broker.</p>
+    <p class="lead" lang="en">Test firmware, decoders and guides, freely available in this repository. They work with KasPar-IoT, and also with ThingsBoard or any MQTT broker.</p>
+
+    <div class="grid g3 mt">
+      <div class="card fw">
+        <h3>Universal ESP32 MQTT Client</h3>
+        <p lang="el">Μετατρέπει ένα ESP32 σε παραμετροποιήσιμο εργαλείο δοκιμών MQTT. Όλες οι ρυθμίσεις γίνονται από ελληνικό μενού στο Serial, χωρίς νέο compile: Wi-Fi, broker, TLS/mTLS, topics, εικονικοί αισθητήρες, προφίλ.</p>
+        <p lang="en">Turns an ESP32 into a configurable MQTT test tool. Everything is set from a serial menu, with no recompiling: Wi-Fi, broker, TLS/mTLS, topics, virtual sensors and presets.</p>
+        <div class="meta"><span>ESP32 / ESP32-S3</span><span>MQTT · TLS · mTLS</span><span>v1.0.1-dev</span><span class="badge b-exp"><span lang="el">Πειραματικό</span><span lang="en">Experimental</span></span></div>
+        <div class="links"><a href="https://github.com/kasnakis/kaspar-iot-hub/tree/main/firmware/KasparIoT_Universal_ESP32">Code →</a><a href="https://github.com/kasnakis/kaspar-iot-hub/blob/main/firmware/KasparIoT_Universal_ESP32/README.md"><span lang="el">Οδηγός</span><span lang="en">Guide</span> →</a></div>
+      </div>
+      <div class="card fw">
+        <h3>Universal LoRaWAN Client (MKR 1310)</h3>
+        <p lang="el">Firmware για Arduino MKR WAN 1310: OTAA στο EU868, έως 8 εικονικοί αισθητήρες, συμπαγές binary ή JSON payload και ρύθμιση από μενού.</p>
+        <p lang="en">Firmware for the Arduino MKR WAN 1310: OTAA on EU868, up to 8 virtual sensors, compact binary or JSON payloads, and menu-driven setup.</p>
+        <div class="meta"><span>MKR WAN 1310</span><span>LoRaWAN · OTAA · EU868</span><span>v1.0.0-dev</span><span class="badge b-exp"><span lang="el">Πειραματικό</span><span lang="en">Experimental</span></span></div>
+        <div class="links"><a href="https://github.com/kasnakis/kaspar-iot-hub/tree/main/firmware/KasparIoT_Universal_MKR1310">Code →</a><a href="https://github.com/kasnakis/kaspar-iot-hub/blob/main/firmware/KasparIoT_Universal_MKR1310/README.md"><span lang="el">Οδηγός</span><span lang="en">Guide</span> →</a></div>
+      </div>
+      <div class="card fw">
+        <h3>ChirpStack v4 Decoder</h3>
+        <p lang="el">Codec JavaScript για το Device Profile του ChirpStack. Αναγνωρίζει αυτόματα binary ή JSON και επιστρέφει αντικείμενο με ονόματα αισθητήρων.</p>
+        <p lang="en">JavaScript codec for the ChirpStack Device Profile. It detects binary or JSON automatically and returns an object keyed by sensor name.</p>
+        <div class="meta"><span>ChirpStack v4</span><span>JavaScript</span></div>
+        <div class="links"><a href="https://github.com/kasnakis/kaspar-iot-hub/blob/main/firmware/KasparIoT_Universal_MKR1310/ChirpStack_Decoder.js">Code →</a></div>
+      </div>
+    </div>
+
+    <h3 class="mt" style="font-size:1.35rem"><span lang="el">Δοκιμάστε το LoRaWAN payload</span><span lang="en">Try the LoRaWAN payload</span></h3>
+    <p lang="el" style="color:var(--muted)">Ίδια λογική με το firmware και τον decoder: byte έκδοσης, πλήθος, και για κάθε αισθητήρα ID (1–8) και signed int32 big-endian με την τιμή ×100.</p>
+    <p lang="en" style="color:var(--muted)">Same logic as the firmware and decoder: a version byte, a count, then per sensor an ID (1–8) and a signed big-endian int32 holding the value ×100.</p>
+
+    <div class="tester">
+      <div class="tester-head" role="tablist">
+        <button class="tab" role="tab" aria-selected="true" data-tab="enc"><span lang="el">Κωδικοποίηση</span><span lang="en">Encode</span></button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="dec"><span lang="el">Αποκωδικοποίηση</span><span lang="en">Decode</span></button>
+      </div>
+      <div class="pane" id="pane-enc">
+        <div>
+          <div id="rows"></div>
+          <button class="small-btn" id="add" type="button">+ <span lang="el">Αισθητήρας</span><span lang="en">Sensor</span></button>
+          <p class="hint" lang="el">Τα ονόματα ακολουθούν τον πίνακα του decoder: θέση 1 temperature, θέση 2 humidity, 3–8 sensor3…sensor8.</p>
+          <p class="hint" lang="en">Names follow the decoder table: slot 1 temperature, slot 2 humidity, 3–8 sensor3…sensor8.</p>
+        </div>
+        <div>
+          <p class="out-label">HEX</p><div class="out" id="hex"></div>
+          <p class="out-label" style="margin-top:16px">Base64 <span lang="el">(όπως στο ChirpStack)</span><span lang="en">(as shown in ChirpStack)</span></p><div class="out" id="b64"></div>
+          <p class="hint" id="size"></p>
+        </div>
+      </div>
+      <div class="pane" id="pane-dec" hidden>
+        <div>
+          <label for="decIn" class="out-label" style="display:block">HEX <span lang="el">ή</span><span lang="en">or</span> Base64</label>
+          <textarea id="decIn" spellcheck="false">01 02 01 00 00 09 2E 02 00 00 19 14</textarea>
+          <p class="hint" lang="el">Δεκτά και JSON payloads που ξεκινούν με «{».</p>
+          <p class="hint" lang="en">JSON payloads starting with “{” are accepted too.</p>
+        </div>
+        <div><p class="out-label">decodeUplink() → data</p><div class="out" id="decOut"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESOURCES -->
+<section id="resources">
+  <div class="wrap">
+    <span class="eyebrow"><span lang="el">Υλικό</span><span lang="en">Resources</span></span>
+    <h2><span lang="el">Οδηγοί και υλικό παρουσίασης</span><span lang="en">Guides and presentation material</span></h2>
+    <div class="grid g2 mt">
+      <div class="card res">
+        <img src="marketing/infographic-preview-1.png" alt="Infographic preview">
+        <div>
+          <h3>Infographic A4</h3>
+          <p lang="el">Legacy δεδομένα, γεωτεχνικές εφαρμογές και επιλογές εγκατάστασης σε μία σελίδα, για εκτύπωση ή αποστολή.</p>
+          <p lang="en">Legacy data, geotechnical applications and deployment options on one page, ready to print or send (in Greek).</p>
+          <p style="margin-top:12px"><a href="marketing/KasPar-IoT_Infographic_Legacy_Geotechnical_Deployment_v2.pdf">PDF →</a></p>
+        </div>
+      </div>
+      <div class="card">
+        <h3><span lang="el">Οδηγοί</span><span lang="en">Guides</span></h3>
+        <ul class="checks" style="margin-top:6px">
+          <li><a href="https://github.com/kasnakis/kaspar-iot-hub/blob/main/firmware/KasparIoT_Universal_ESP32/README.md"><span lang="el">ESP32: εγκατάσταση, TLS, ThingsBoard, Mosquitto, mTLS</span><span lang="en">ESP32: setup, TLS, ThingsBoard, Mosquitto, mTLS (Greek)</span></a></li>
+          <li><a href="https://github.com/kasnakis/kaspar-iot-hub/blob/main/firmware/KasparIoT_Universal_MKR1310/README.md"><span lang="el">LoRaWAN με MKR 1310 και ChirpStack</span><span lang="en">LoRaWAN with MKR 1310 and ChirpStack (Greek)</span></a></li>
+          <li><a href="https://github.com/kasnakis/kaspar-iot-hub/tree/main/guides"><span lang="el">Περισσότεροι οδηγοί σύντομα</span><span lang="en">More guides coming soon</span></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="card mt center" style="background:var(--navy);border-color:var(--navy)">
+      <h3 style="color:#fff;font-size:1.4rem"><span lang="el">Θέλετε να δείτε το KasPar-IoT σε λειτουργία;</span><span lang="en">Want to see KasPar-IoT in action?</span></h3>
+      <p style="color:#B9C8E3;margin-bottom:20px"><span lang="el">Ανοίξτε ένα θέμα στο GitHub για επίδειξη, ερωτήσεις ή συνεργασία.</span><span lang="en">Open a GitHub discussion for a demo, questions or collaboration.</span></p>
+      <a class="btn btn-primary" href="https://github.com/kasnakis/kaspar-iot-hub/discussions"><span lang="el">Επικοινωνία</span><span lang="en">Get in touch</span> →</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div><img src="assets/logo-dark.svg" alt="KasPar-IoT"><p style="margin-top:12px;max-width:320px"><span lang="el">Από τον αισθητήρα στην απόφαση.</span><span lang="en">From sensor to decision.</span></p></div>
+    <ul>
+      <li><a href="#platform"><span lang="el">Πλατφόρμα</span><span lang="en">Platform</span></a></li>
+      <li><a href="#connectivity"><span lang="el">Συνδεσιμότητα</span><span lang="en">Connectivity</span></a></li>
+      <li><a href="#developers">Developers</a></li>
+    </ul>
+    <ul>
+      <li><a href="https://github.com/kasnakis/kaspar-iot-hub">GitHub</a></li>
+      <li><a href="https://github.com/kasnakis/kaspar-iot-hub/blob/main/LICENSE">License</a></li>
+      <li><a href="https://github.com/kasnakis/kaspar-iot-hub/blob/main/SECURITY.md">Security</a></li>
+    </ul>
+    <div class="fine">© 2026 KasPar-IoT. <span lang="el">Ο κώδικας του repository διατίθεται με άδεια MIT· το υλικό τεκμηρίωσης και παρουσίασης με CC BY 4.0. Ο πηγαίος κώδικας της πλατφόρμας δεν περιλαμβάνεται.</span><span lang="en">Code in this repository is MIT-licensed; documentation and presentation material are CC BY 4.0. The platform's source code is not included.</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // ---------- language ----------
+  var root=document.documentElement;
+  function setLang(l){
+    root.setAttribute('data-lang',l); root.setAttribute('lang',l);
+    document.querySelectorAll('[data-set-lang]').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-set-lang')===l?'true':'false');});
+    document.title = l==='el' ? 'KasPar-IoT — Από τον αισθητήρα στην απόφαση' : 'KasPar-IoT — From sensor to decision';
+    try{localStorage.setItem('kaspar-lang',l);}catch(e){}
+  }
+  var initial='el';
+  try{
+    var q=new URLSearchParams(location.search).get('lang');
+    var saved=localStorage.getItem('kaspar-lang');
+    if(q==='el'||q==='en') initial=q;
+    else if(saved==='el'||saved==='en') initial=saved;
+    else if(!/^el\b/i.test(navigator.language||'')) initial='en';
+  }catch(e){}
+  setLang(initial);
+  document.querySelectorAll('[data-set-lang]').forEach(function(b){b.addEventListener('click',function(){setLang(b.getAttribute('data-set-lang'));});});
+
+  // ---------- payload tester (mirrors PayloadEncoder.h / ChirpStack_Decoder.js) ----------
+  var NAMES=['temperature','humidity','sensor3','sensor4','sensor5','sensor6','sensor7','sensor8'];
+  var rows=[{id:1,v:23.5},{id:2,v:64.2}];
+  var rowsEl=document.getElementById('rows');
+  function hex2(n){return ('0'+n.toString(16)).slice(-2).toUpperCase();}
+  function encode(list){
+    var out=[1,0];
+    list.slice().sort(function(a,b){return a.id-b.id;}).forEach(function(r){
+      var x=Math.round(r.v*100); if(x>2147483647||x<-2147483648) throw new Error('range');
+      var u=x>>>0; out.push(r.id,(u>>>24)&255,(u>>>16)&255,(u>>>8)&255,u&255); out[1]++;
+    });
+    return out;
+  }
+  function decodeUplink(b){ // identical logic to ChirpStack_Decoder.js
+    if(b[0]===123){try{return {data:JSON.parse(new TextDecoder().decode(new Uint8Array(b)))};}catch(e){return {errors:['Invalid JSON']};}}
+    if(b.length<2||b[0]!==1||b[1]>8||b.length!==2+5*b[1])return {errors:['Invalid binary payload']};
+    var data={};for(var i=2;i<b.length;i+=5){var id=b[i];if(id<1||id>8)return {errors:['Invalid sensor ID']};var x=(b[i+1]<<24)|(b[i+2]<<16)|(b[i+3]<<8)|b[i+4];data[NAMES[id-1]]=x/100;}return {data:data};
+  }
+  function render(){
+    rowsEl.innerHTML='';
+    rows.forEach(function(r,i){
+      var d=document.createElement('div');d.className='row';
+      var sel='<select aria-label="ID">'+NAMES.map(function(n,k){return '<option value="'+(k+1)+'"'+(r.id===k+1?' selected':'')+'>'+(k+1)+'</option>';}).join('')+'</select>';
+      d.innerHTML=sel+'<label>'+NAMES[r.id-1]+'</label><input type="number" step="0.01" aria-label="value" value="'+r.v+'"><button class="x" type="button" aria-label="remove">×</button>';
+      d.querySelector('select').onchange=function(e){r.id=+e.target.value;render();};
+      d.querySelector('input').oninput=function(e){r.v=parseFloat(e.target.value)||0;update();};
+      d.querySelector('.x').onclick=function(){rows.splice(i,1);render();};
+      rowsEl.appendChild(d);
+    });
+    document.getElementById('add').disabled=rows.length>=8;
+    update();
+  }
+  function update(){
+    var hex=document.getElementById('hex'),b64=document.getElementById('b64'),size=document.getElementById('size');
+    var ids={},dup=rows.some(function(r){if(ids[r.id])return true;ids[r.id]=1;return false;});
+    if(dup){hex.innerHTML='<span class="err">Duplicate sensor ID</span>';b64.textContent='';size.textContent='';return;}
+    try{
+      var bytes=encode(rows);
+      hex.textContent=bytes.map(hex2).join(' ');
+      b64.textContent=btoa(String.fromCharCode.apply(null,bytes));
+      var el=root.getAttribute('data-lang')==='el';
+      size.textContent=bytes.length+' bytes'+(el?' · όριο εφαρμογής 51 bytes (EU868, συντηρητικό)':' · app limit 51 bytes (EU868, conservative)');
+    }catch(e){hex.innerHTML='<span class="err">Value out of int32 range</span>';b64.textContent='';}
+  }
+  document.getElementById('add').onclick=function(){
+    var used=rows.map(function(r){return r.id;});
+    for(var k=1;k<=8;k++){if(used.indexOf(k)<0){rows.push({id:k,v:0});break;}}
+    render();
+  };
+  document.querySelectorAll('[data-set-lang]').forEach(function(b){b.addEventListener('click',update);});
+
+  function parseInput(s){
+    s=s.trim(); if(!s) return [];
+    if(s[0]==='{') return Array.from(new TextEncoder().encode(s));
+    var h=s.replace(/0x/gi,'').replace(/[\s,:]/g,'');
+    if(/^[0-9a-f]+$/i.test(h)&&h.length%2===0){var a=[];for(var i=0;i<h.length;i+=2)a.push(parseInt(h.substr(i,2),16));return a;}
+    var bin=atob(s); return Array.from(bin,function(c){return c.charCodeAt(0);});
+  }
+  var decIn=document.getElementById('decIn'),decOut=document.getElementById('decOut');
+  function runDecode(){
+    try{decOut.textContent=JSON.stringify(decodeUplink(parseInput(decIn.value)),null,2);}
+    catch(e){decOut.innerHTML='<span class="err">Not valid HEX / Base64 / JSON</span>';}
+  }
+  decIn.addEventListener('input',runDecode);
+
+  document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.setAttribute('aria-selected',x===t?'true':'false');});
+    document.getElementById('pane-enc').hidden=t.dataset.tab!=='enc';
+    document.getElementById('pane-dec').hidden=t.dataset.tab!=='dec';
+  });});
+
+  render(); runDecode();
+})();
+</script>
+</body>
+</html>
