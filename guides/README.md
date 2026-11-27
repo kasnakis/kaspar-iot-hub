@@ -8,7 +8,8 @@
 | [LoRaWAN με MKR WAN 1310 και ChirpStack v4](../firmware/KasparIoT_Universal_MKR1310/README.md) | Markdown | EL |
 | [Σύνδεση ThingsBoard → KasPar-IoT: rule chain, HTTPS, μορφές μηνυμάτων](thingsboard/README.md) | Markdown + JSON | EL |
 | [HTTPS με δημόσιο πιστοποιητικό (Let's Encrypt): DNS, θύρα 80, ενεργοποίηση, ανανέωση](https/README.md) | Markdown | EL |
+| [Ποιότητα δεδομένων και κατάλογος παραμέτρων: κανόνες, πρόταση από τα δεδομένα, προεπισκόπηση, παραδείγματα (1.7.0)](quality/README.md) | Markdown | EL |
 
-Τα screenshots είναι από εγκατάσταση επίδειξης με δοκιμαστικά δεδομένα. Χάρτες, κωδικοί 2FA και διευθύνσεις έχουν θολωθεί. / Screenshots come from a demo installation with test data; maps, 2FA secrets and addresses are blurred.
+Τα screenshots είναι από εγκατάσταση επίδειξης με δοκιμαστικά δεδομένα. Χάρτες, κωδικοί 2FA, διευθύνσεις και ονόματα σταθμών έχουν θολωθεί. / Screenshots come from a demo installation with test data; maps, 2FA secrets, addresses and station names are blurred.
 
 Επόμενοι / Coming next: εγκατάσταση με Docker, σύνδεση ChirpStack μέσω internet, εισαγωγή CSV, (S)FTP dataloggers.
